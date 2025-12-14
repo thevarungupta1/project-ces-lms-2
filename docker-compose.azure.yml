@@ -3,10 +3,10 @@ version: '3.8'
 services:
   # Backend API (Node.js)
   backend:
+    platform: linux/amd64
     build:
       context: ./node-web-api
       dockerfile: Dockerfile
-      platform: linux/amd64
     container_name: ces-lms-backend
     restart: unless-stopped
     ports:
@@ -58,10 +58,10 @@ services:
 
   # Frontend Application (React)
   frontend:
+    platform: linux/amd64
     build:
       context: ./react-web-app
       dockerfile: Dockerfile
-      platform: linux/amd64
       args:
         # Build-time arguments - Set your backend API URL
         # Replace with your Azure VM IP or domain name
