@@ -8,7 +8,7 @@ COPY package.json package-lock.json* ./
 COPY tsconfig.json ./
 
 # Install dependencies
-RUN npm ci && npm cache clean --force
+RUN npm install && npm cache clean --force
 
 # Copy source code
 COPY src ./src
@@ -30,7 +30,7 @@ RUN addgroup -g 1001 -S nodejs && \
 COPY package.json package-lock.json* ./
 
 # Install production dependencies only
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
