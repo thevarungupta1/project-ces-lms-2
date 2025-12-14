@@ -1,0 +1,2 @@
+export { LeaderboardPage } from './pages';
+

@@ -1,0 +1,2 @@
+export { TalentProfilePage } from './pages';
+

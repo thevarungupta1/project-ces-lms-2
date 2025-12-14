@@ -1,0 +1,19 @@
+# Dockerfile for running seed script
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies (including dev dependencies for tsx)
+RUN npm ci
+
+# Copy source code and data
+COPY src ./src
+COPY data ./data
+
+# Run seed script
+CMD ["npm", "run", "seed"]
+

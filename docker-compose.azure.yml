@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # Backend API (Node.js)
+  backend:
+    build:
+      context: ./node-web-api
+      dockerfile: Dockerfile
+      platform: linux/amd64
+    container_name: ces-lms-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      # Node.js Configuration
+      NODE_ENV: production
+      PORT: 3000
+      API_VERSION: v1
+      
+      # MongoDB Atlas Configuration (REQUIRED - Set your MongoDB Atlas connection string)
+      MONGODB_URI: ${MONGODB_URI}
+      MONGODB_DB_NAME: ${MONGODB_DB_NAME:-ces-lms}
+      
+      # JWT Configuration (REQUIRED - Set your secrets)
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      JWT_REFRESH_EXPIRES_IN: ${JWT_REFRESH_EXPIRES_IN:-30d}
+      
+      # Security Configuration
+      BCRYPT_ROUNDS: ${BCRYPT_ROUNDS:-12}
+      
+      # CORS Configuration (Set to your frontend URL)
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      CORS_CREDENTIALS: ${CORS_CREDENTIALS:-true}
+      
+      # Rate Limiting
+      RATE_LIMIT_WINDOW_MS: ${RATE_LIMIT_WINDOW_MS:-900000}
+      RATE_LIMIT_MAX_REQUESTS: ${RATE_LIMIT_MAX_REQUESTS:-100}
+      
+      # Logging Configuration
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      LOG_DIR: ${LOG_DIR:-logs}
+      
+      # Seed Script Configuration (optional)
+      RUN_SEED: ${RUN_SEED:-false}
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      start_period: 40s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Frontend Application (React)
+  frontend:
+    build:
+      context: ./react-web-app
+      dockerfile: Dockerfile
+      platform: linux/amd64
+      args:
+        # Build-time arguments - Set your backend API URL
+        # Replace with your Azure VM IP or domain name
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:3000}
+        VITE_API_VERSION: ${VITE_API_VERSION:-v1}
+        VITE_API_TIMEOUT: ${VITE_API_TIMEOUT:-30000}
+    container_name: ces-lms-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

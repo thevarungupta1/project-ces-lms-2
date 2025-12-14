@@ -1,0 +1,2 @@
+export { CategoriesPage } from './pages';
+
