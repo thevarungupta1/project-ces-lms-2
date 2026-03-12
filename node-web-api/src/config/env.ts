@@ -50,7 +50,7 @@ export const env: EnvConfig = {
   port: parseInt(getEnvVar('PORT', '3000'), 10),
   apiVersion: getEnvVar('API_VERSION', 'v1'),
   mongodb: {
-    uri: getEnvVar('MONGODB_URI', 'mongodb://localhost:27017/ces-lms'),
+    uri: getEnvVar('MONGODB_URI', 'mongodb+srv://ces:admin123@freefakeapi-cluster.hlds9nn.mongodb.net/test?appName=freefakeapi-cluster'),
     dbName: getEnvVar('MONGODB_DB_NAME', 'ces-lms'),
   },
   jwt: {
